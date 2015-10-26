@@ -6,12 +6,15 @@ use PDO;
 
 class ORM
 {
-    const DEFAULT_CONNECTION_NAME = 'default';
+    /**
+     * @var ORM
+     */
+    public static $instance;
 
     /**
-     * @var PDO[]
+     * @var PDO
      */
-    protected $connections = array();
+    public $pdo;
     /**
      * @var array
      */
@@ -22,29 +25,30 @@ class ORM
      * @param string $username
      * @param string $password
      * @param array  $options
-     * @param string $connection
      *
      * @return string
      */
-    public function connect($dsn, $username = '', $password = '', $options = array(), $connection = self::DEFAULT_CONNECTION_NAME)
+    public function connect($dsn, $username = '', $password = '', $options = array())
     {
-        $pdo = new PDO($dsn, $username, $password, $options);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->connections[$connection] = $pdo;
-        $this->connectionConfig[$connection]['quote_character'] = $this->detectQuoteCharacter($pdo);
+        $this->pdo = new PDO($dsn, $username, $password, $options);
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->connectionConfig['quote_character'] = $this->detectQuoteCharacter();
+    }
+
+    public function __construct()
+    {
+        self::$instance = $this;
     }
 
     /**
      * @param string $sql
      * @param array  $params
-     * @param string $connection
      *
      * @return false|\PDOStatement
      */
-    public function execute($sql, $params = array(), $connection = self::DEFAULT_CONNECTION_NAME)
+    public function execute($sql, $params = array())
     {
-        $pdo = $this->getConnection($connection);
-        $statement = $pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql);
         if ($statement === false) {
             return false;
         }
@@ -52,17 +56,7 @@ class ORM
         return $statement;
     }
 
-    /**
-     * @param string $connection
-     *
-     * @return PDO
-     */
-    public function getConnection($connection = self::DEFAULT_CONNECTION_NAME)
-    {
-        return $this->connections[$connection];
-    }
-
-    public function quoteIdentifier($identifier, $connection = self::DEFAULT_CONNECTION_NAME)
+    public function quoteIdentifier($identifier)
     {
         if (is_array($identifier)) {
             return implode(',', array_map(array($this, 'quoteIdentifier'), $identifier));
@@ -70,19 +64,17 @@ class ORM
         $parts = explode('.', $identifier);
         $quotedParts = array();
         foreach ($parts as $part) {
-            $quotedParts[] = $this->quoteSingleIdentifier($part, $connection);
+            $quotedParts[] = $this->quoteSingleIdentifier($part);
         }
         return implode('.', $quotedParts);
     }
 
     /**
-     * @param PDO $pdo
-     *
      * @return string
      */
-    protected function detectQuoteCharacter(PDO $pdo)
+    protected function detectQuoteCharacter()
     {
-        switch ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+        switch ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME)) {
             case 'pgsql':
             case 'sqlsrv':
             case 'dblib':
@@ -98,12 +90,12 @@ class ORM
         }
     }
 
-    protected function quoteSingleIdentifier($identifier, $connection = self::DEFAULT_CONNECTION_NAME)
+    protected function quoteSingleIdentifier($identifier)
     {
         if ($identifier === '*') {
             return $identifier;
         }
-        $quote = $this->connectionConfig[$connection]['quote_character'];
+        $quote = $this->connectionConfig['quote_character'];
         return $quote . str_replace($quote, $quote . $quote, $identifier) . $quote;
     }
 }

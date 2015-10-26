@@ -4,45 +4,18 @@ namespace Fastpress\Yaar;
 
 class Model
 {
-    private $connectionName = ORM::DEFAULT_CONNECTION_NAME;
-    private $columns = array();
-    /**
-     * @var ORM
-     */
-    private $orm;
+    protected $orm;
+    protected $columns = array();
 
-    /**
-     * @param ORM    $orm
-     * @param string $connection
-     *
-     * @return static
-     */
-    public static function via(ORM $orm, $connection = ORM::DEFAULT_CONNECTION_NAME)
+    public function __construct()
     {
-        $obj = new static();
-        $obj->setOrm($orm);
-        $obj->setConnection($connection);
-
-        return $obj;
-    }
-
-    /**
-     * @param ORM $orm
-     */
-    public function setOrm($orm)
-    {
-        $this->orm = $orm;
-    }
-
-    public function setConnection($connection = ORM::DEFAULT_CONNECTION_NAME)
-    {
-        $this->connectionName = $connection;
+        $this->orm = ORM::$instance;
     }
 
     /**
      * @return bool
      */
-    public function insert()
+    public function save()
     {
         $orm = $this->orm;
         $columns = $this->getColumns();
@@ -54,14 +27,12 @@ class Model
             $placeholders
         );
         $values = array_values($columns);
-        $success = $orm->execute($sql, $values, $this->connectionName);
+        $success = $orm->execute($sql, $values);
         if ($success === false) {
             return false;
         }
 
-        $connection = $this->orm->getConnection($this->connectionName);
-        $this->columns[$this->getPrimaryKeyName()] = $connection->lastInsertId();
-
+        $this->columns[$this->getPrimaryKeyName()] = $orm->pdo->lastInsertId();
         return true;
     }
 
@@ -83,7 +54,6 @@ class Model
         } else {
             $name = substr($fqn, $pos + 1);
         }
-
         return ltrim(strtolower(preg_replace('/[A-Z]+/', '_$0', $name)), '_');
     }
 
@@ -100,8 +70,7 @@ class Model
             $this->quoteIdentifier($this->getTableName()),
             $this->quoteIdentifier($primaryKeyName)
         );
-
-        return false !== $this->orm->execute($sql, array($primaryKeyValue), $this->connectionName);
+        return false !== $this->orm->execute($sql, array($primaryKeyValue));
     }
 
     /**
@@ -122,7 +91,6 @@ class Model
             $this->quoteIdentifier($this->getPrimaryKeyName())
         );
         $statement = $this->orm->execute($sql, $params);
-
         return $statement->rowCount();
     }
 
@@ -140,15 +108,13 @@ class Model
             $this->quoteIdentifier($this->getPrimaryKeyName())
         );
         $params = array($primaryKey);
-        $statement = $this->orm->execute($sql, $params, $this->connectionName);
+        $statement = $this->orm->execute($sql, $params);
         $columns = $statement->fetch(\PDO::FETCH_ASSOC);
         if ($columns === false) {
             $this->columns = array();
-
             return false;
         }
         $this->columns = $columns;
-
         return true;
     }
 
@@ -164,8 +130,7 @@ class Model
         if (isset($this->columns[$name])) {
             return $this->columns[$name];
         }
-
-        return;
+        return null;
     }
 
     /**
@@ -181,6 +146,6 @@ class Model
 
     private function quoteIdentifier($identifier)
     {
-        return $this->orm->quoteIdentifier($identifier, $this->connectionName);
+        return $this->orm->quoteIdentifier($identifier);
     }
 }
