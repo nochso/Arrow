@@ -7,7 +7,6 @@ use Fastpress\Arrow\Model;
 /**
  * @property mixed $id
  * @property mixed $name
- * @property mixed $role_id
  */
 class User extends Model
 {
