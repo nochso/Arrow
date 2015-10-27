@@ -1,11 +1,11 @@
 {
-  "name": "fastpress/yaar",
-  "description": "Yaar - Yet Another Active Record",
+  "name": "fastpress/arrow",
+  "description": "Arrow - Active Record rows",
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Fastpress\\Yaar\\": "src",
-      "Fastpress\\Yaar\\Test\\": "test/src"
+      "Fastpress\\Arrow\\": "src",
+      "Fastpress\\Arrow\\Test\\": "test/src"
     }
   },
   "require-dev": {

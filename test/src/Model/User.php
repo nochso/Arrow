@@ -1,8 +1,8 @@
 <?php
 
-namespace Fastpress\Yaar\Test\Model;
+namespace Fastpress\Arrow\Test\Model;
 
-use Fastpress\Yaar\Model;
+use Fastpress\Arrow\Model;
 
 /**
  * @property mixed $id

@@ -1,9 +1,9 @@
 <?php
 
-namespace Fastpress\Yaar\Test;
+namespace Fastpress\Arrow\Test;
 
-use Fastpress\Yaar\ORM;
-use Fastpress\Yaar\Test\Model\User;
+use Fastpress\Arrow\ORM;
+use Fastpress\Arrow\Test\Model\User;
 
 class ORMTest extends \PHPUnit_Framework_TestCase
 {

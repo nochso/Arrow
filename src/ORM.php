@@ -1,6 +1,6 @@
 <?php
 
-namespace Fastpress\Yaar;
+namespace Fastpress\Arrow;
 
 use PDO;
 
