@@ -5,7 +5,7 @@ namespace Fastpress\Arrow\Test;
 use Fastpress\Arrow\ORM;
 use Fastpress\Arrow\Test\Model\User;
 
-class ORMTest extends \PHPUnit_Framework_TestCase
+class ModelTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var ORM
