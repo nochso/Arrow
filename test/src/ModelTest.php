@@ -3,6 +3,7 @@
 namespace Fastpress\Arrow\Test;
 
 use Fastpress\Arrow\ORM;
+use Fastpress\Arrow\Test\Model\FluentUser;
 use Fastpress\Arrow\Test\Model\User;
 
 class ModelTest extends \PHPUnit_Framework_TestCase
@@ -100,5 +101,31 @@ TAG;
 
         $user->delete();
         $this->assertEquals('0', $this->orm->execute($sql)->fetchColumn());
+    }
+
+    public function testFluentModel()
+    {
+        $user = new User();
+        $user->name = 'John';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Jane';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Mark';
+        $user->save();
+
+        $user = new FluentUser();
+        $users = $user->like('name', 'J%')->all();
+        foreach ($users as $user) {
+            $this->assertStringStartsWith('J', $user->name);
+        }
+
+        $users = $user->in('name', ['John', 'Jane'])->all();
+        foreach ($users as $user) {
+            $this->assertStringStartsWith('J', $user->name);
+        }
     }
 }

@@ -44,6 +44,14 @@ class Model
         return $this->columns;
     }
 
+    /**
+     * @param array $columns
+     */
+    public function setColumns($columns)
+    {
+        $this->columns = $columns;
+    }
+
     public function getTableName()
     {
         $fqn = get_class($this);

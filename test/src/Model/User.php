@@ -13,6 +13,6 @@ class User extends Model
     public function findByName($name)
     {
         // 404 Reusable query builder stuff not found
-        return new User();
+        return new self();
     }
 }
