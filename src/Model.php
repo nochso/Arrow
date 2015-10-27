@@ -1,6 +1,6 @@
 <?php
 
-namespace Fastpress\Yaar;
+namespace Fastpress\Arrow;
 
 class Model
 {
@@ -42,6 +42,14 @@ class Model
     public function getColumns()
     {
         return $this->columns;
+    }
+
+    /**
+     * @param array $columns
+     */
+    public function setColumns($columns)
+    {
+        $this->columns = $columns;
     }
 
     public function getTableName()
