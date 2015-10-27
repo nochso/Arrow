@@ -4,10 +4,27 @@ namespace Fastpress\Arrow\Builder;
 
 use Fastpress\Arrow\ORM;
 
+/**
+ * SimpleWhere can represent most SQL conditions and returns SQL strings with
+ * placeholders and their parameters in the proper order.
+ *
+ * This can easily be refactored if it becomes too complex: different condition
+ * classes each implementing the two methods `toString` and `getParameters`.
+ * Then they can all be used by QueryBuilder.
+ */
 class SimpleWhere
 {
+    /**
+     * @var string
+     */
     protected $columnName;
+    /**
+     * @var string
+     */
     protected $operator;
+    /**
+     * @var mixed|array|null
+     */
     protected $value;
 
     /**

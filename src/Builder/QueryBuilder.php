@@ -13,22 +13,44 @@ class QueryBuilder
      * @var \Fastpress\Arrow\ORM
      */
     protected $orm;
+    /**
+     * @var string
+     */
     protected $tableName;
     /**
-     * @var SimpleWhere[]
+     * @var SimpleWhere[] A list of WHERE condition objects.
      */
     protected $where = [];
+    /**
+     * @var int Limit the amount of results.
+     */
     protected $limit;
+    /**
+     * @var int Offset the result list.
+     */
     protected $offset;
+    /**
+     * Not implemented yet. See ORM2.
+     *
+     * @var array List of ORDER BY conditions.
+     */
     protected $order = [];
+    /**
+     * @var int Any of the QueryBuilder::QUERY_TYPE_* constants.
+     */
     protected $queryType;
+    /**
+     * @var array 0-indexed array of `?` PDO placeholders.
+     */
     protected $parameters = [];
 
     const QUERY_TYPE_SELECT = 0;
     const QUERY_TYPE_DELETE = 1;
     const QUERY_TYPE_UPDATE = 2;
     const QUERY_TYPE_INSERT = 4;
-
+    /**
+     * Whether to use `SELECT TOP 5` or `LIMIT 5`.
+     */
     const LIMIT_STYLE_TOP = 0;
     const LIMIT_STYLE_LIMIT = 1;
 
@@ -47,6 +69,14 @@ class QueryBuilder
         $this->where[] = $where;
     }
 
+    /**
+     * Limit the amount of maximum rows returned.
+     *
+     * The second parameter allows you to optionally set the offset.
+     *
+     * @param int      $limit
+     * @param null|int $offset
+     */
     public function setLimit($limit, $offset = null)
     {
         $this->limit = $limit;
@@ -55,11 +85,23 @@ class QueryBuilder
         }
     }
 
+    /**
+     * Offset the results.
+     *
+     * @param int $offset
+     */
     public function setOffset($offset)
     {
         $this->offset = $offset;
     }
 
+    /**
+     * Combines any conditions and settings into a single query.
+     *
+     * As placeholders are used, their parameters/values are added to $this->parameters
+     *
+     * @return string SQL query using ? placeholders.
+     */
     public function getSql()
     {
         return $this->getTypeSQL()
@@ -69,6 +111,8 @@ class QueryBuilder
     }
 
     /**
+     * Creates, executes and returns a statement based on this instance.
+     *
      * @return false|\PDOStatement
      */
     public function getStatement()
@@ -76,6 +120,11 @@ class QueryBuilder
         return $this->orm->execute($this->getSql(), $this->parameters);
     }
 
+    /**
+     * Returns the beginning of any SQL statement, depending on $this->queryType
+     *
+     * @return string
+     */
     protected function getTypeSQL()
     {
         $sql = '';
@@ -91,6 +140,7 @@ class QueryBuilder
                 );
                 break;
 
+            // TODO Rewrite for this project
 //            case self::QUERY_TYPE_DELETE:
 //                $sql = 'DELETE FROM `' . $this->tableName . '`';
 //                break;
@@ -117,11 +167,16 @@ class QueryBuilder
         return $sql;
     }
 
+    /**
+     * @return string
+     */
     protected function getLimitSql()
     {
         if ($this->limit === null) {
             return '';
         }
+
+        // getTypeSQL() already took care of this
         if ($this->detectLimitStyle() !== self::LIMIT_STYLE_LIMIT) {
             return '';
         }
@@ -147,6 +202,11 @@ class QueryBuilder
         return sprintf($syntax, $this->offset);
     }
 
+    /**
+     * Whether to use `SELECT TOP 5` or `LIMIT 5`.
+     *
+     * @return int
+     */
     protected function detectLimitStyle()
     {
         $driver = $this->orm->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -160,6 +220,13 @@ class QueryBuilder
         }
     }
 
+    /**
+     * Combines any where condition objects (SimpleWhere) into a single WHERE condition.
+     *
+     * By default all conditions are combined with AND.
+     *
+     * @return string
+     */
     protected function getWhereSql()
     {
         if (empty($this->where)) {

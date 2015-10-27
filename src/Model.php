@@ -37,6 +37,8 @@ class Model
     }
 
     /**
+     * Returns all values indexed by column names.
+     *
      * @return array
      */
     public function getColumns()
@@ -45,6 +47,8 @@ class Model
     }
 
     /**
+     * Overwrite all values with an array indexed by column names.
+     *
      * @param array $columns
      */
     public function setColumns($columns)

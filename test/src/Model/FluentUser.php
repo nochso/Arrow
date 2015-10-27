@@ -10,6 +10,11 @@ use Fastpress\Arrow\FluentModel;
  */
 class FluentUser extends FluentModel
 {
+    /**
+     * Only needed because there's already a `User` in the same namespace.
+     *
+     * @return string
+     */
     public function getTableName()
     {
         return 'user';

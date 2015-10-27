@@ -2,6 +2,22 @@
 
 namespace Fastpress\Arrow\Builder;
 
+/**
+ * Adds fluent SQL query builder to classes inheriting from Model.
+ *
+ * Conditions like `where` and `like` return the same object you call them on.
+ * That way you can chain queries like this:
+ *
+ * ```
+ * $model->where('id', '1')->limit(5)->all();
+ * ```
+ *
+ * The first two method calls collect conditions in a QueryBuilder. Calling
+ * `all()` ends the chain by combining any previous calls into a single SQL
+ * query and returning the result.
+ *
+ * If users want to keep it simple, they can still inherit Model without using this trait.
+ */
 trait FluentBuilderTrait
 {
     /**
@@ -9,7 +25,7 @@ trait FluentBuilderTrait
      */
     protected $queryBuilder;
 
-#region Public fluent select methods
+#region Public fluent methods
 
     /**
      * Filter where column equals value.
@@ -181,8 +197,12 @@ trait FluentBuilderTrait
     /**
      * Limit the amount of maximum rows returned.
      *
+     * The second parameter allows you to optionally set the offset.
+     *
      * @param int $limit
      * @param int $offset
+     *
+     * @see FluentBuilderTrait::offset
      *
      * @return static
      */
