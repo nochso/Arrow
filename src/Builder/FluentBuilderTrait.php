@@ -231,14 +231,26 @@ trait FluentBuilderTrait
 
     /**
      * Places the resulting row into the current model object (Active Record style).
+     *
+     * @return bool
      */
     public function fetch()
     {
+        $this->limit(1);
+        $statement = $this->queryBuilder->getStatement();
+        $columns = $statement->fetch(\PDO::FETCH_ASSOC);
+        $this->queryBuilder = null;
+        if ($columns === false) {
+            $this->setColumns([]);
+            return false;
+        }
+        $this->setColumns($columns);
+        return true;
     }
 
     /**
      * Returns a list of results.
-     * 
+     *
      * @return static[]
      */
     public function all()
@@ -256,11 +268,21 @@ trait FluentBuilderTrait
 
     /**
      * Returns a single result.
-     * 
+     *
      * @return static
      */
     public function one()
     {
+        $this->limit(1);
+        $statement = $this->queryBuilder->getStatement();
+        $columns = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($columns === false) {
+            return null;
+        }
+        $model = new static();
+        $model->setColumns($columns);
+        $this->queryBuilder = null;
+        return $model;
     }
 
 #endregion

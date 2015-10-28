@@ -103,7 +103,7 @@ TAG;
         $this->assertEquals('0', $this->orm->execute($sql)->fetchColumn());
     }
 
-    public function testFluentModel()
+    public function testFluentAll()
     {
         $user = new User();
         $user->name = 'John';
@@ -127,5 +127,30 @@ TAG;
         foreach ($users as $user) {
             $this->assertStringStartsWith('J', $user->name);
         }
+    }
+
+    public function testFluentOne()
+    {
+        $john = new User();
+        $john->name = 'John';
+        $john->save();
+
+        $query = new FluentUser();
+        $user = $query->eq('name', 'John')->one();
+        $this->assertEquals('John', $user->name);
+
+        $missingUser = $user->eq('name', 'Waldo')->one();
+        $this->assertNull($missingUser);
+    }
+
+    public function testFluentFetch()
+    {
+        $john = new User();
+        $john->name = 'John';
+        $john->save();
+
+        $user = new FluentUser();
+        $user->eq('name', 'John')->fetch();
+        $this->assertEquals('John', $user->name);
     }
 }
