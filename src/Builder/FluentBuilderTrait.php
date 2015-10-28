@@ -225,6 +225,32 @@ trait FluentBuilderTrait
         return $this;
     }
 
+    /**
+     * Sort the results by ascending order.
+     *
+     * @param string $column
+     *
+     * @return static
+     */
+    public function orderAsc($column)
+    {
+        $this->queryBuilder->addOrder($column, 'ASC');
+        return $this;
+    }
+
+    /**
+     * Sort the results by descending order.
+     *
+     * @param string $column
+     *
+     * @return static
+     */
+    public function orderDesc($column)
+    {
+        $this->queryBuilder->addOrder($column, 'DESC');
+        return $this;
+    }
+
 #endregion
 
 #region Public fluent termination methods

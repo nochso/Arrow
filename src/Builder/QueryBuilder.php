@@ -96,6 +96,18 @@ class QueryBuilder
     }
 
     /**
+     * @param $column
+     * @param string $direction Either 'ASC' or 'DESC'
+     */
+    public function addOrder($column, $direction = 'ASC')
+    {
+        if ($direction !== 'ASC' && $direction !== 'DESC') {
+            throw new \InvalidArgumentException('Parameter $direction must be either "ASC" or "DESC".');
+        }
+        $this->order[] = sprintf('%s %s', $this->orm->quoteIdentifier($column), $direction);
+    }
+
+    /**
      * Combines any conditions and settings into a single query.
      *
      * As placeholders are used, their parameters/values are added to $this->parameters
@@ -106,6 +118,7 @@ class QueryBuilder
     {
         return $this->getTypeSQL()
             . $this->getWhereSql()
+            . $this->getOrderSql()
             . $this->getLimitSql()
             . $this->getOffsetSql();
     }
@@ -238,5 +251,13 @@ class QueryBuilder
             $this->parameters = array_merge($this->parameters, $where->getParameters());
         }
         return ' WHERE ' . implode(' AND ', $parts);
+    }
+
+    protected function getOrderSql()
+    {
+        if (empty($this->order)) {
+            return '';
+        }
+        return sprintf(' ORDER BY %s', implode(',', $this->order));
     }
 }
