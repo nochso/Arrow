@@ -81,14 +81,17 @@ class Model
     }
 
     /**
-     * @return int Number of rows that were updated.
+     * Updates the existing database row with current model data.
+     *
+     * @return bool True on success, false otherwise.
      */
     public function update()
     {
         $model = new DynamicFluentModel();
         $model->withModel($this);
         $primaryKeyValue = $this->columns[$this->getPrimaryKeyName()];
-        return $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->updateAll();
+        $rowCount = $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->updateAll();
+        return $rowCount > 0;
     }
 
     /**
