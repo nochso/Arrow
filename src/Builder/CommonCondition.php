@@ -5,14 +5,12 @@ namespace Fastpress\Arrow\Builder;
 use Fastpress\Arrow\ORM;
 
 /**
- * SimpleWhere can represent most SQL conditions and returns SQL strings with
- * placeholders and their parameters in the proper order.
+ * CommonCondition can represent the most common SQL conditions.
  *
  * This can easily be refactored if it becomes too complex: different condition
- * classes each implementing the two methods `toString` and `getParameters`.
- * Then they can all be used by QueryBuilder.
+ * classes each implementing ConditionInterface. Then they can all be used by QueryBuilder.
  */
-class SimpleWhere implements ConditionInterface
+class CommonCondition implements ConditionInterface
 {
     /**
      * @var string

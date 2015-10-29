@@ -20,7 +20,7 @@ class QueryBuilder
     /**
      * @var ConditionInterface[] A list of WHERE condition objects.
      */
-    protected $where = [];
+    protected $conditions = [];
     /**
      * @var int Limit the amount of results.
      */
@@ -69,11 +69,11 @@ class QueryBuilder
     }
 
     /**
-     * @param ConditionInterface $where
+     * @param ConditionInterface $condition
      */
-    public function addWhere($where)
+    public function addCondition($condition)
     {
-        $this->where[] = $where;
+        $this->conditions[] = $condition;
     }
 
     /**
@@ -280,13 +280,13 @@ class QueryBuilder
      */
     protected function getWhereSql()
     {
-        if (empty($this->where)) {
+        if (empty($this->conditions)) {
             return '';
         }
         $parts = [];
-        foreach ($this->where as $where) {
-            $parts[] = $where->toString();
-            $this->parameters = array_merge($this->parameters, $where->getParameters());
+        foreach ($this->conditions as $condition) {
+            $parts[] = $condition->toString();
+            $this->parameters = array_merge($this->parameters, $condition->getParameters());
         }
         return ' WHERE ' . implode(' AND ', $parts);
     }

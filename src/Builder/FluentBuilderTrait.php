@@ -37,7 +37,7 @@ trait FluentBuilderTrait
      */
     public function eq($column, $value)
     {
-        return $this->addSimpleWhere($column, '=', $value);
+        return $this->addCommonCondition($column, '=', $value);
     }
 
     /**
@@ -63,7 +63,7 @@ trait FluentBuilderTrait
      */
     public function neq($column, $value)
     {
-        return $this->addSimpleWhere($column, '!=', $value);
+        return $this->addCommonCondition($column, '!=', $value);
     }
 
     /**
@@ -76,7 +76,7 @@ trait FluentBuilderTrait
      */
     public function lt($column, $value)
     {
-        return $this->addSimpleWhere($column, '<', $value);
+        return $this->addCommonCondition($column, '<', $value);
     }
 
     /**
@@ -89,7 +89,7 @@ trait FluentBuilderTrait
      */
     public function lte($column, $value)
     {
-        return $this->addSimpleWhere($column, '<=', $value);
+        return $this->addCommonCondition($column, '<=', $value);
     }
 
     /**
@@ -102,7 +102,7 @@ trait FluentBuilderTrait
      */
     public function gt($column, $value)
     {
-        return $this->addSimpleWhere($column, '>', $value);
+        return $this->addCommonCondition($column, '>', $value);
     }
 
     /**
@@ -115,7 +115,7 @@ trait FluentBuilderTrait
      */
     public function gte($column, $value)
     {
-        return $this->addSimpleWhere($column, '>=', $value);
+        return $this->addCommonCondition($column, '>=', $value);
     }
 
     /**
@@ -128,7 +128,7 @@ trait FluentBuilderTrait
      */
     public function in($column, $values)
     {
-        return $this->addSimpleWhere($column, 'IN', $values);
+        return $this->addCommonCondition($column, 'IN', $values);
     }
 
     /**
@@ -141,7 +141,7 @@ trait FluentBuilderTrait
      */
     public function notIn($column, $values)
     {
-        return $this->addSimpleWhere($column, 'NOT IN', $values);
+        return $this->addCommonCondition($column, 'NOT IN', $values);
     }
 
     /**
@@ -154,7 +154,7 @@ trait FluentBuilderTrait
      */
     public function like($column, $value)
     {
-        return $this->addSimpleWhere($column, 'LIKE', $value);
+        return $this->addCommonCondition($column, 'LIKE', $value);
     }
 
     /**
@@ -167,7 +167,7 @@ trait FluentBuilderTrait
      */
     public function notLike($column, $value)
     {
-        return $this->addSimpleWhere($column, 'NOT LIKE', $value);
+        return $this->addCommonCondition($column, 'NOT LIKE', $value);
     }
 
     /**
@@ -179,7 +179,7 @@ trait FluentBuilderTrait
      */
     public function isNull($column)
     {
-        return $this->addSimpleWhere($column, 'IS NULL', '');
+        return $this->addCommonCondition($column, 'IS NULL', '');
     }
 
     /**
@@ -191,7 +191,7 @@ trait FluentBuilderTrait
      */
     public function notNull($column)
     {
-        return $this->addSimpleWhere($column, 'IS NOT NULL', '');
+        return $this->addCommonCondition($column, 'IS NOT NULL', '');
     }
 
     /**
@@ -360,10 +360,11 @@ trait FluentBuilderTrait
      *
      * @return $this
      */
-    protected function addSimpleWhere($column, $operator, $value)
+    protected function addCommonCondition($column, $operator, $value)
     {
         $this->init();
-        $this->queryBuilder->addWhere(new SimpleWhere($column, $operator, $value));
+        $condition = new CommonCondition($column, $operator, $value);
+        $this->queryBuilder->addCondition($condition);
         return $this;
     }
 
