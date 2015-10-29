@@ -116,9 +116,4 @@ class Model
     {
         $this->columns[$name] = $value;
     }
-
-    private function quoteIdentifier($identifier)
-    {
-        return $this->orm->quoteIdentifier($identifier);
-    }
 }
