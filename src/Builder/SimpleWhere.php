@@ -40,6 +40,32 @@ class SimpleWhere
     }
 
     /**
+     * Returns the parameters/placeholders required by this condition.
+     *
+     * Must always return an array, even if it's empty.
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        switch ($this->operator) {
+            case 'IN':
+            case 'NOT IN':
+                if (!is_array($this->value)) {
+                    throw new \InvalidArgumentException('Expecting array when using SQL operator ' . $this->operator);
+                }
+                return $this->value;
+
+            case 'IS NULL':
+            case 'IS NOT NULL':
+                return [];
+
+            default:
+                return [$this->value];
+        }
+    }
+
+    /**
      * @return string
      */
     public function toString()
@@ -65,32 +91,6 @@ class SimpleWhere
 
             default:
                 return sprintf('%s %s ?', $quotedColumn, $this->operator);
-        }
-    }
-
-    /**
-     * Returns the parameters/placeholders required by this condition.
-     *
-     * Must always return an array, even if it's empty.
-     *
-     * @return array
-     */
-    public function getParameters()
-    {
-        switch ($this->operator) {
-            case 'IN':
-            case 'NOT IN':
-                if (!is_array($this->value)) {
-                    throw new \InvalidArgumentException('Expecting array when using SQL operator ' . $this->operator);
-                }
-                return $this->value;
-
-            case 'IS NULL':
-            case 'IS NOT NULL':
-                return [];
-
-            default:
-                return [$this->value];
         }
     }
 }

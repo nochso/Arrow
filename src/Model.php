@@ -15,21 +15,29 @@ class Model
     }
 
     /**
-     * Saves (INSERTs) the current model instance to database.
+     * is utilized for reading data from inaccessible members.
      *
-     * @return bool
+     * @param $name string
+     *
+     * @return mixed
      */
-    public function save()
+    public function __get($name)
     {
-        $queryBuilder = new QueryBuilder($this->getTableName());
-        $queryBuilder->setQueryType(QueryBuilder::QUERY_TYPE_INSERT);
-        $queryBuilder->setModelData($this->columns);
-        $statement = $queryBuilder->getStatement();
-        if ($statement === false) {
-            return false;
+        if (isset($this->columns[$name])) {
+            return $this->columns[$name];
         }
-        $this->columns[$this->getPrimaryKeyName()] = $this->orm->pdo->lastInsertId();
-        return true;
+        return null;
+    }
+
+    /**
+     * run when writing data to inaccessible members.
+     *
+     * @param $name string
+     * @param $value mixed
+     */
+    public function __set($name, $value)
+    {
+        $this->columns[$name] = $value;
     }
 
     /**
@@ -94,17 +102,21 @@ class Model
     }
 
     /**
-     * Deletes the current model.
+     * Saves (INSERTs) the current model instance to database.
      *
-     * @return bool True on success, false otherwise.
+     * @return bool
      */
-    public function delete()
+    public function save()
     {
-        $model = new DynamicFluentModel();
-        $model->withModel($this);
-        $primaryKeyValue = $this->columns[$this->getPrimaryKeyName()];
-        $rowCount = $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->deleteAll();
-        return $rowCount > 0;
+        $queryBuilder = new QueryBuilder($this->getTableName());
+        $queryBuilder->setQueryType(QueryBuilder::QUERY_TYPE_INSERT);
+        $queryBuilder->setModelData($this->columns);
+        $statement = $queryBuilder->getStatement();
+        if ($statement === false) {
+            return false;
+        }
+        $this->columns[$this->getPrimaryKeyName()] = $this->orm->pdo->lastInsertId();
+        return true;
     }
 
     /**
@@ -122,28 +134,16 @@ class Model
     }
 
     /**
-     * is utilized for reading data from inaccessible members.
+     * Deletes the current model.
      *
-     * @param $name string
-     *
-     * @return mixed
+     * @return bool True on success, false otherwise.
      */
-    public function __get($name)
+    public function delete()
     {
-        if (isset($this->columns[$name])) {
-            return $this->columns[$name];
-        }
-        return null;
-    }
-
-    /**
-     * run when writing data to inaccessible members.
-     *
-     * @param $name string
-     * @param $value mixed
-     */
-    public function __set($name, $value)
-    {
-        $this->columns[$name] = $value;
+        $model = new DynamicFluentModel();
+        $model->withModel($this);
+        $primaryKeyValue = $this->columns[$this->getPrimaryKeyName()];
+        $rowCount = $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->deleteAll();
+        return $rowCount > 0;
     }
 }

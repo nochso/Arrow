@@ -10,7 +10,6 @@ class ORM
      * @var ORM
      */
     public static $instance;
-
     /**
      * @var PDO
      */
@@ -19,6 +18,11 @@ class ORM
      * @var array
      */
     protected $connectionConfig = array();
+
+    public function __construct()
+    {
+        self::$instance = $this;
+    }
 
     /**
      * @param string $dsn
@@ -33,11 +37,6 @@ class ORM
         $this->pdo = new PDO($dsn, $username, $password, $options);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->connectionConfig['quote_character'] = $this->detectQuoteCharacter();
-    }
-
-    public function __construct()
-    {
-        self::$instance = $this;
     }
 
     /**
