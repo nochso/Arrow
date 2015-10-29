@@ -153,4 +153,16 @@ TAG;
         $user->eq('name', 'John')->fetch();
         $this->assertEquals('John', $user->name);
     }
+
+    public function testFluentFetchPrimaryKey()
+    {
+        $john = new User();
+        $john->id = 2;
+        $john->name = 'John';
+        $john->save();
+
+        $user = new FluentUser();
+        $user->fetch(2);
+        $this->assertEquals('John', $user->name);
+    }
 }

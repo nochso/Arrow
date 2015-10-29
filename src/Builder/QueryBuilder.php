@@ -134,7 +134,7 @@ class QueryBuilder
     }
 
     /**
-     * Returns the beginning of any SQL statement, depending on $this->queryType
+     * Returns the beginning of any SQL statement, depending on $this->queryType.
      *
      * @return string
      */
@@ -209,6 +209,9 @@ class QueryBuilder
         }
         $syntax = ' OFFSET %d';
         $driver = $this->orm->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if ($driver == 'sqlsrv' || $driver == 'dblib' || $driver = 'mssql') {
+            throw new \Exception('Using offsets in MS SQL is not supported.');
+        }
         if ($driver === 'firebird') {
             $syntax = ' TO %d';
         }

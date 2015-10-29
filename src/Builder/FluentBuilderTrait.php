@@ -208,6 +208,7 @@ trait FluentBuilderTrait
      */
     public function limit($limit, $offset = null)
     {
+        $this->init();
         $this->queryBuilder->setLimit($limit, $offset);
         return $this;
     }
@@ -221,6 +222,7 @@ trait FluentBuilderTrait
      */
     public function offset($offset)
     {
+        $this->init();
         $this->queryBuilder->setOffset($offset);
         return $this;
     }
@@ -234,6 +236,7 @@ trait FluentBuilderTrait
      */
     public function orderAsc($column)
     {
+        $this->init();
         $this->queryBuilder->addOrder($column, 'ASC');
         return $this;
     }
@@ -247,6 +250,7 @@ trait FluentBuilderTrait
      */
     public function orderDesc($column)
     {
+        $this->init();
         $this->queryBuilder->addOrder($column, 'DESC');
         return $this;
     }
@@ -258,14 +262,23 @@ trait FluentBuilderTrait
     /**
      * Places the resulting row into the current model object (Active Record style).
      *
+     * @param null $primaryKey
+     *
      * @return bool
      */
-    public function fetch()
+    public function fetch($primaryKey = null)
     {
+        if ($primaryKey !== null) {
+            // If a primary key was given, discard the previous QueryBuilder
+            $this->reset();
+            $this->eq($this->getPrimaryKeyName(), $primaryKey);
+        } else {
+            $this->init();
+        }
         $this->limit(1);
         $statement = $this->queryBuilder->getStatement();
         $columns = $statement->fetch(\PDO::FETCH_ASSOC);
-        $this->queryBuilder = null;
+        $this->reset();
         if ($columns === false) {
             $this->setColumns([]);
             return false;
@@ -281,6 +294,7 @@ trait FluentBuilderTrait
      */
     public function all()
     {
+        $this->init();
         $statement = $this->queryBuilder->getStatement();
         $result = [];
         while ($columns = $statement->fetch(\PDO::FETCH_ASSOC)) {
@@ -288,7 +302,7 @@ trait FluentBuilderTrait
             $model->setColumns($columns);
             $result[] = $model;
         }
-        $this->queryBuilder = null;
+        $this->reset();
         return $result;
     }
 
@@ -299,6 +313,7 @@ trait FluentBuilderTrait
      */
     public function one()
     {
+        $this->init();
         $this->limit(1);
         $statement = $this->queryBuilder->getStatement();
         $columns = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -307,7 +322,7 @@ trait FluentBuilderTrait
         }
         $model = new static();
         $model->setColumns($columns);
-        $this->queryBuilder = null;
+        $this->reset();
         return $model;
     }
 
@@ -322,10 +337,26 @@ trait FluentBuilderTrait
      */
     protected function addSimpleWhere($column, $operator, $value)
     {
+        $this->init();
+        $this->queryBuilder->addWhere(new SimpleWhere($column, $operator, $value));
+        return $this;
+    }
+
+    /**
+     * Ensures there's a QueryBuilder to work with.
+     */
+    protected function init()
+    {
         if ($this->queryBuilder === null) {
             $this->queryBuilder = new QueryBuilder($this->getTableName());
         }
-        $this->queryBuilder->addWhere(new SimpleWhere($column, $operator, $value));
-        return $this;
+    }
+
+    /**
+     * Resets the QueryBuilder by destroying it.
+     */
+    protected function reset()
+    {
+        $this->queryBuilder = null;
     }
 }

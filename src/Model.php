@@ -107,30 +107,6 @@ class Model
     }
 
     /**
-     * Selects a row by primary key, replacing any previous data.
-     *
-     * @param $primaryKey
-     *
-     * @return bool
-     */
-    public function get($primaryKey)
-    {
-        $sql = sprintf('SELECT * FROM %s WHERE %s = ?',
-            $this->quoteIdentifier($this->getTableName()),
-            $this->quoteIdentifier($this->getPrimaryKeyName())
-        );
-        $params = array($primaryKey);
-        $statement = $this->orm->execute($sql, $params);
-        $columns = $statement->fetch(\PDO::FETCH_ASSOC);
-        if ($columns === false) {
-            $this->columns = array();
-            return false;
-        }
-        $this->columns = $columns;
-        return true;
-    }
-
-    /**
      * is utilized for reading data from inaccessible members.
      *
      * @param $name string
