@@ -68,15 +68,16 @@ class Model
         return 'id';
     }
 
+    /**
+     * @return bool
+     */
     public function delete()
     {
-        $primaryKeyName = $this->getPrimaryKeyName();
-        $primaryKeyValue = $this->columns[$primaryKeyName];
-        $sql = sprintf('DELETE FROM %s WHERE %s = ?',
-            $this->quoteIdentifier($this->getTableName()),
-            $this->quoteIdentifier($primaryKeyName)
-        );
-        return false !== $this->orm->execute($sql, array($primaryKeyValue));
+        $model = new DynamicFluentModel();
+        $model->withModel($this);
+        $primaryKeyValue = $this->columns[$this->getPrimaryKeyName()];
+        $rowCount = $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->deleteAll();
+        return $rowCount > 0;
     }
 
     /**
