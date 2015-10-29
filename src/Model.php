@@ -15,6 +15,8 @@ class Model
     }
 
     /**
+     * Saves (INSERTs) the current model instance to database.
+     *
      * @return bool
      */
     public function save()
@@ -50,6 +52,20 @@ class Model
         $this->columns = $columns;
     }
 
+    /**
+     * Returns the table name based on the class name.
+     *
+     * By default the last part of fully qualified class name is converted from
+     * camelCase to snake_case.
+     *
+     * e.g. `\vendor\name\UserRole` becomes `user_role`
+     *
+     * You can override this method when extending Model to either:
+     * - Specify a the table name of a specific model
+     * - Generate a table name dynamically, similar to this implementation
+     *
+     * @return string
+     */
     public function getTableName()
     {
         $fqn = get_class($this);
@@ -63,13 +79,24 @@ class Model
         return ltrim(strtolower(preg_replace('/[A-Z]+/', '_$0', $name)), '_');
     }
 
+    /**
+     * Returns the name of the primary key column.
+     *
+     * By default this is `id`.
+     *
+     * You can override this for each inherited Model just like `getTableName()`
+     *
+     * @return string
+     */
     public function getPrimaryKeyName()
     {
         return 'id';
     }
 
     /**
-     * @return bool
+     * Deletes the current model.
+     *
+     * @return bool True on success, false otherwise.
      */
     public function delete()
     {
