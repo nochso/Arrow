@@ -80,24 +80,14 @@ class Model
     }
 
     /**
-     * @return int Rows affected.
+     * @return int Number of rows that were updated.
      */
     public function update()
     {
-        $params = array();
-        $sets = array();
-        foreach ($this->columns as $name => $value) {
-            $params[] = $value;
-            $sets[] = sprintf('%s = ?', $this->quoteIdentifier($name));
-        }
-        $params[] = $this->columns[$this->getPrimaryKeyName()];
-        $sql = sprintf('UPDATE %s SET %s WHERE %s = ?',
-            $this->quoteIdentifier($this->getTableName()),
-            implode(',', $sets),
-            $this->quoteIdentifier($this->getPrimaryKeyName())
-        );
-        $statement = $this->orm->execute($sql, $params);
-        return $statement->rowCount();
+        $model = new DynamicFluentModel();
+        $model->withModel($this);
+        $primaryKeyValue = $this->columns[$this->getPrimaryKeyName()];
+        return $model->where($this->getPrimaryKeyName(), $primaryKeyValue)->updateAll();
     }
 
     /**

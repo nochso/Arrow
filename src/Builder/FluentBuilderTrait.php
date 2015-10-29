@@ -338,6 +338,19 @@ trait FluentBuilderTrait
         return $statement->rowCount();
     }
 
+    /**
+     * @return int Number of rows that were updated.
+     */
+    public function updateAll()
+    {
+        $this->init();
+        $this->queryBuilder->setQueryType(QueryBuilder::QUERY_TYPE_UPDATE);
+        $this->queryBuilder->setModelData($this->columns);
+        $statement = $this->queryBuilder->getStatement();
+        $this->reset();
+        return $statement->rowCount();
+    }
+
 #endregion
 
     /**

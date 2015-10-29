@@ -189,15 +189,18 @@ class QueryBuilder
                 $sql = sprintf('DELETE FROM %s', $quotedTableName);
                 break;
 
-//            case self::QUERY_TYPE_UPDATE:
-//                $sql = 'UPDATE `' . $this->tableName . '` SET ';
-//                if ($this->modelData instanceof \nochso\ORM\ResultSet) {
-//                    $sql .= $this->getMultiUpdateSetsSQL();
-//                } else {
-//                    $sql .= $this->getUpdateSetsSQL();
-//                }
-//                break;
-//
+            case self::QUERY_TYPE_UPDATE:
+                $sets = array();
+                foreach ($this->modelData as $columnName => $columnValue) {
+                    $sets[] = sprintf('%s = ?', $this->orm->quoteIdentifier($columnName));
+                    $this->parameters[] = $columnValue;
+                }
+                $sql = sprintf('UPDATE %s SET %s',
+                    $quotedTableName,
+                    implode(',', $sets)
+                );
+                break;
+
             case self::QUERY_TYPE_INSERT:
                 $quotedColumnNames = $this->orm->quoteIdentifier(array_keys($this->modelData));
                 $placeholders = implode(',', array_fill(0, count($this->modelData), '?'));
