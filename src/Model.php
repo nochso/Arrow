@@ -2,6 +2,8 @@
 
 namespace Fastpress\Arrow;
 
+use Fastpress\Arrow\Builder\QueryBuilder;
+
 class Model
 {
     protected $orm;
@@ -17,22 +19,14 @@ class Model
      */
     public function save()
     {
-        $orm = $this->orm;
-        $columns = $this->getColumns();
-        $quotedColumnNames = $this->quoteIdentifier(array_keys($columns));
-        $placeholders = implode(',', array_fill(0, count($columns), '?'));
-        $sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
-            $this->quoteIdentifier($this->getTableName()),
-            $quotedColumnNames,
-            $placeholders
-        );
-        $values = array_values($columns);
-        $success = $orm->execute($sql, $values);
-        if ($success === false) {
+        $queryBuilder = new QueryBuilder($this->getTableName());
+        $queryBuilder->setQueryType(QueryBuilder::QUERY_TYPE_INSERT);
+        $queryBuilder->setModelData($this->columns);
+        $statement = $queryBuilder->getStatement();
+        if ($statement === false) {
             return false;
         }
-
-        $this->columns[$this->getPrimaryKeyName()] = $orm->pdo->lastInsertId();
+        $this->columns[$this->getPrimaryKeyName()] = $this->orm->pdo->lastInsertId();
         return true;
     }
 

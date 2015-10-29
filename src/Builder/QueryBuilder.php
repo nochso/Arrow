@@ -40,6 +40,10 @@ class QueryBuilder
      */
     protected $queryType;
     /**
+     * @var array
+     */
+    protected $modelData;
+    /**
      * @var array 0-indexed array of `?` PDO placeholders.
      */
     protected $parameters = [];
@@ -54,6 +58,9 @@ class QueryBuilder
     const LIMIT_STYLE_TOP = 0;
     const LIMIT_STYLE_LIMIT = 1;
 
+    /**
+     * @param string $tableName
+     */
     public function __construct($tableName)
     {
         $this->orm = ORM::$instance;
@@ -150,6 +157,14 @@ class QueryBuilder
     }
 
     /**
+     * @param array $modelData
+     */
+    public function setModelData($modelData)
+    {
+        $this->modelData = $modelData;
+    }
+
+    /**
      * Returns the beginning of any SQL statement, depending on $this->queryType.
      *
      * @return string
@@ -157,6 +172,7 @@ class QueryBuilder
     protected function getTypeSQL()
     {
         $sql = '';
+        $quotedTableName = $this->orm->quoteIdentifier($this->tableName);
         switch ($this->queryType) {
             case self::QUERY_TYPE_SELECT:
                 $top = '';
@@ -165,12 +181,12 @@ class QueryBuilder
                 }
                 $sql = sprintf('SELECT%s * FROM %s',
                     $top,
-                    $this->orm->quoteIdentifier($this->tableName)
+                    $quotedTableName
                 );
                 break;
 
             case self::QUERY_TYPE_DELETE:
-                $sql = sprintf('DELETE FROM %s', $this->orm->quoteIdentifier($this->tableName));
+                $sql = sprintf('DELETE FROM %s', $quotedTableName);
                 break;
 
 //            case self::QUERY_TYPE_UPDATE:
@@ -182,15 +198,16 @@ class QueryBuilder
 //                }
 //                break;
 //
-//            case self::QUERY_TYPE_INSERT:
-//                $columnNames = '`' . implode('`, `', array_keys($this->modelData)) . '`';
-//                $parameters = [];
-//                foreach ($this->modelData as $key => $value) {
-//                    $parameters[] = $this->addParameter($value);
-//                }
-//                $parameters = implode(', ', $parameters);
-//                $sql = 'INSERT INTO `' . $this->tableName . '` (' . $columnNames . ') VALUES (' . $parameters . ')';
-//                break;
+            case self::QUERY_TYPE_INSERT:
+                $quotedColumnNames = $this->orm->quoteIdentifier(array_keys($this->modelData));
+                $placeholders = implode(',', array_fill(0, count($this->modelData), '?'));
+                $sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
+                    $quotedTableName,
+                    $quotedColumnNames,
+                    $placeholders
+                );
+                $this->parameters = array_merge($this->parameters, array_values($this->modelData));
+                break;
         }
         return $sql;
     }

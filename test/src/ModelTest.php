@@ -48,7 +48,7 @@ TAG;
         $this->assertNull($user->id, 'Primary key should be null for insert');
         $user->save();
         $this->assertEquals('1', $this->orm->execute($sql)->fetchColumn(), 'Table should not be empty after insert');
-        $this->assertNotNull($user->id);
+        $this->assertNotNull($user->id, 'Primary key of freshly inserted row must not be NULL.');
     }
 
     /**
