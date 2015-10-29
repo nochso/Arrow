@@ -191,4 +191,28 @@ TAG;
         $count = $this->orm->execute('SELECT COUNT(*) FROM user')->fetchColumn();
         $this->assertEquals(0, $count);
     }
+
+    public function testFluentUpdate()
+    {
+        $user = new User();
+        $user->name = 'John';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Jane';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Mark';
+        $user->save();
+
+        $fluentUser = new FluentUser();
+        $fluentUser->name = 'oops';
+        $fluentUser->updateAll();
+
+        $names = $this->orm->execute('SELECT name FROM user')->fetchAll(\PDO::FETCH_COLUMN);
+        foreach ($names as $name) {
+            $this->assertEquals('oops', $name);
+        }
+    }
 }
