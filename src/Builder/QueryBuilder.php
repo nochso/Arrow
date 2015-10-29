@@ -134,6 +134,22 @@ class QueryBuilder
     }
 
     /**
+     * @return int Any of the QueryBuilder::QUERY_TYPE_* constants.
+     */
+    public function getQueryType()
+    {
+        return $this->queryType;
+    }
+
+    /**
+     * @param int $queryType Any of the QueryBuilder::QUERY_TYPE_* constants.
+     */
+    public function setQueryType($queryType)
+    {
+        $this->queryType = $queryType;
+    }
+
+    /**
      * Returns the beginning of any SQL statement, depending on $this->queryType.
      *
      * @return string
@@ -153,11 +169,10 @@ class QueryBuilder
                 );
                 break;
 
-            // TODO Rewrite for this project
-//            case self::QUERY_TYPE_DELETE:
-//                $sql = 'DELETE FROM `' . $this->tableName . '`';
-//                break;
-//
+            case self::QUERY_TYPE_DELETE:
+                $sql = sprintf('DELETE FROM %s', $this->orm->quoteIdentifier($this->tableName));
+                break;
+
 //            case self::QUERY_TYPE_UPDATE:
 //                $sql = 'UPDATE `' . $this->tableName . '` SET ';
 //                if ($this->modelData instanceof \nochso\ORM\ResultSet) {

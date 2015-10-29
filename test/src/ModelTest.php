@@ -165,4 +165,30 @@ TAG;
         $user->fetch(2);
         $this->assertEquals('John', $user->name);
     }
+
+    public function testFluentDelete()
+    {
+        $user = new User();
+        $user->name = 'John';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Jane';
+        $user->save();
+
+        $user->id = null;
+        $user->name = 'Mark';
+        $user->save();
+
+        $delete = new FluentUser();
+        $deletedCount = $delete->where('name', 'John')->deleteAll();
+        $this->assertEquals(1, $deletedCount);
+
+        $count = $this->orm->execute('SELECT COUNT(*) FROM user')->fetchColumn();
+        $this->assertEquals(2, $count);
+
+        $delete->deleteAll();
+        $count = $this->orm->execute('SELECT COUNT(*) FROM user')->fetchColumn();
+        $this->assertEquals(0, $count);
+    }
 }

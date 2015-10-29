@@ -326,6 +326,18 @@ trait FluentBuilderTrait
         return $model;
     }
 
+    /**
+     * @return int Number of rows that were deleted.
+     */
+    public function deleteAll()
+    {
+        $this->init();
+        $this->queryBuilder->setQueryType(QueryBuilder::QUERY_TYPE_DELETE);
+        $statement = $this->queryBuilder->getStatement();
+        $this->reset();
+        return $statement->rowCount();
+    }
+
 #endregion
 
     /**
