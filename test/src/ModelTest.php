@@ -3,7 +3,6 @@
 namespace Fastpress\Arrow\Test;
 
 use Fastpress\Arrow\ORM;
-use Fastpress\Arrow\Test\Model\FluentUser;
 use Fastpress\Arrow\Test\Model\User;
 
 class ModelTest extends \PHPUnit_Framework_TestCase
@@ -18,24 +17,13 @@ class ModelTest extends \PHPUnit_Framework_TestCase
         $this->orm = new ORM();
         $this->orm->connect('sqlite::memory:');
 
-        $queries[] = <<<'TAG'
+        $sql = <<<'TAG'
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT
 )
 TAG;
-        $queries[] = <<<'TAG'
-CREATE TABLE post (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    date_created DATETIME NOT NULL
-)
-TAG;
-
-        foreach ($queries as $sql) {
-            $this->orm->execute($sql);
-        }
+        $this->orm->execute($sql);
     }
 
     public function testSave()
@@ -101,118 +89,5 @@ TAG;
 
         $user->delete();
         $this->assertEquals('0', $this->orm->execute($sql)->fetchColumn());
-    }
-
-    public function testFluentAll()
-    {
-        $user = new User();
-        $user->name = 'John';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Jane';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Mark';
-        $user->save();
-
-        $user = new FluentUser();
-        $users = $user->like('name', 'J%')->all();
-        foreach ($users as $user) {
-            $this->assertStringStartsWith('J', $user->name);
-        }
-
-        $users = $user->in('name', ['John', 'Jane'])->all();
-        foreach ($users as $user) {
-            $this->assertStringStartsWith('J', $user->name);
-        }
-    }
-
-    public function testFluentOne()
-    {
-        $john = new User();
-        $john->name = 'John';
-        $john->save();
-
-        $query = new FluentUser();
-        $user = $query->eq('name', 'John')->one();
-        $this->assertEquals('John', $user->name);
-
-        $missingUser = $user->eq('name', 'Waldo')->one();
-        $this->assertNull($missingUser);
-    }
-
-    public function testFluentFetch()
-    {
-        $john = new User();
-        $john->name = 'John';
-        $john->save();
-
-        $user = new FluentUser();
-        $user->eq('name', 'John')->fetch();
-        $this->assertEquals('John', $user->name);
-    }
-
-    public function testFluentFetchPrimaryKey()
-    {
-        $john = new User();
-        $john->id = 2;
-        $john->name = 'John';
-        $john->save();
-
-        $user = new FluentUser();
-        $user->fetch(2);
-        $this->assertEquals('John', $user->name);
-    }
-
-    public function testFluentDelete()
-    {
-        $user = new User();
-        $user->name = 'John';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Jane';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Mark';
-        $user->save();
-
-        $delete = new FluentUser();
-        $deletedCount = $delete->where('name', 'John')->deleteAll();
-        $this->assertEquals(1, $deletedCount);
-
-        $count = $this->orm->execute('SELECT COUNT(*) FROM user')->fetchColumn();
-        $this->assertEquals(2, $count);
-
-        $delete->deleteAll();
-        $count = $this->orm->execute('SELECT COUNT(*) FROM user')->fetchColumn();
-        $this->assertEquals(0, $count);
-    }
-
-    public function testFluentUpdate()
-    {
-        $user = new User();
-        $user->name = 'John';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Jane';
-        $user->save();
-
-        $user->id = null;
-        $user->name = 'Mark';
-        $user->save();
-
-        $fluentUser = new FluentUser();
-        $fluentUser->name = 'oops';
-        $fluentUser->updateAll();
-
-        $names = $this->orm->execute('SELECT name FROM user')->fetchAll(\PDO::FETCH_COLUMN);
-        foreach ($names as $name) {
-            $this->assertEquals('oops', $name);
-        }
     }
 }
