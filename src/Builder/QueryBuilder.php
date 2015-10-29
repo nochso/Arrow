@@ -18,7 +18,7 @@ class QueryBuilder
      */
     protected $tableName;
     /**
-     * @var SimpleWhere[] A list of WHERE condition objects.
+     * @var ConditionInterface[] A list of WHERE condition objects.
      */
     protected $where = [];
     /**
@@ -69,7 +69,7 @@ class QueryBuilder
     }
 
     /**
-     * @param SimpleWhere $where
+     * @param ConditionInterface $where
      */
     public function addWhere($where)
     {
@@ -272,7 +272,7 @@ class QueryBuilder
     }
 
     /**
-     * Combines any where condition objects (SimpleWhere) into a single WHERE condition.
+     * Combines any conditions that implement ConditionInterface into a single WHERE SQL string.
      *
      * By default all conditions are combined with AND.
      *

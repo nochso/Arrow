@@ -12,7 +12,7 @@ use Fastpress\Arrow\ORM;
  * classes each implementing the two methods `toString` and `getParameters`.
  * Then they can all be used by QueryBuilder.
  */
-class SimpleWhere
+class SimpleWhere implements ConditionInterface
 {
     /**
      * @var string
