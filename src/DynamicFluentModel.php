@@ -26,6 +26,28 @@ final class DynamicFluentModel extends FluentModel
     }
 
     /**
+     * Creates and prepares a new model for any table.
+     *
+     * If you omit $tableName, make sure you call either withModel or withTable.
+     *
+     * @see withTable
+     *
+     * @param $tableName
+     * @param null|string $primaryKeyName
+     * @param null|array       $columns
+     *
+     * @return DynamicFluentModel
+     */
+    public static function create($tableName = null, $primaryKeyName = null, $columns = array())
+    {
+        $model = new self();
+        if ($tableName !== null) {
+            $model->withTable($tableName, $primaryKeyName, $columns);
+        }
+        return $model;
+    }
+
+    /**
      * @return mixed
      */
     public function getTableName()
@@ -66,10 +88,12 @@ final class DynamicFluentModel extends FluentModel
      * The original does not have to use the FluentBuilderTrait.
      *
      * @param Model $model
+     *
+     * @return DynamicFluentModel
      */
     public function withModel(Model $model)
     {
-        $this->withTable($model->getTableName(), $model->getPrimaryKeyName(), $model->getColumns());
+        return $this->withTable($model->getTableName(), $model->getPrimaryKeyName(), $model->getColumns());
     }
 
     /**
@@ -78,11 +102,14 @@ final class DynamicFluentModel extends FluentModel
      * @param string      $tableName
      * @param null|string $primaryKeyName
      * @param null|array  $columns
+     *
+     * @return $this
      */
     public function withTable($tableName, $primaryKeyName = null, $columns = array())
     {
         $this->setTableName($tableName);
         $this->setPrimaryKeyName($primaryKeyName);
         $this->setColumns($columns);
+        return $this;
     }
 }

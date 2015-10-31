@@ -64,6 +64,31 @@ $user->update(); // UPDATE existing row
 $user->delete(); // DELETE existing row
 ```
 
+### Avoiding models
+If you choose not to create or use model classes for each table, you can use the DynamicFluentModel:
+```php
+// Create a model for any table on the fly:
+$user = DynamicFluentModel::create('user');
+
+// which is a shortcut for:
+$user = new DynamicFluentModel();
+$user->withTable('user', 'id', $columns);
+// The last 2 parameters default to 'id' and array()
+
+$user->name = 'John';
+$user->save();
+
+// Alternatively:
+$user = DynamicFluentModel::create('user', 'id', ['name' => 'Sweet Dee']);
+$user->save();
+
+$user->name = 'Jane';
+$user->update();
+
+$jane = $user->where('id', $user->id)->one();
+// $jane->name == 'Jane'
+```
+
 ### Structure
 The base class for models is `Model`. When extending this, all you get is a model definition and the Active Record functionality.
 
