@@ -93,15 +93,15 @@ $jane = $user->where('id', $user->id)->one();
 The base class for models is `Model`. When extending this, all you get is a model definition and the Active Record functionality.
 
 * **Model** - Base table definition including Active Record methods **without** fluent methods.
-	* **FluentModel** - Extends directly from Model, pulling in the FluentBuilderTrait for fluent query building.
-	  * **DynamicFluentModel** - Can be used to create a `FluentModel` on the fly without actually declaring it.
-			```php
-			$simpleModel = new User(); # extends directly from Model
-			$simpleModel->is_deleted = true;
-      $model = new DynamicFluentModel();
-      $model->withModel($simpleModel);
-			# Updates is_deleted for all rows where name is 'Anonymous'
-      $rowCount = $model->where('name', 'Anonymous')->updateAll();
-			```
-			
+  * **FluentModel** - Extends directly from Model, pulling in the FluentBuilderTrait for fluent query building.
+    * **DynamicFluentModel** - Can be used to create a `FluentModel` on the fly without actually declaring it. See section "Avoiding models" also.
+    ```php
+    $simpleModel = new User(); # extends directly from Model
+    $simpleModel->is_deleted = true;
+    $model = new DynamicFluentModel();
+    $model->withModel($simpleModel);
+    # Updates is_deleted for all rows where name is 'Anonymous'
+    $rowCount = $model->where('name', 'Anonymous')->updateAll();
+    ```
+
 It is essentially up to you what features the models support.
